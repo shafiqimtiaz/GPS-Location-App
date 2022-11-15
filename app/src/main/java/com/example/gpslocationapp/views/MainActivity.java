@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     Location currentLocation;
     private List<Location> savedLocations;
-    private final GPSLocationContainer gpsLocationContainer = new GPSLocationContainer();
-    private final LocationRequest locationRequest = new LocationRequest();
+    private GPSLocationContainer gpsLocationContainer = new GPSLocationContainer();
+    private LocationRequest locationRequest = new LocationRequest();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallBack;
 
@@ -111,10 +111,10 @@ public class MainActivity extends AppCompatActivity {
         sw_gps.setOnClickListener(view -> {
             if (sw_gps.isChecked()) {
                 locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                tv_sensor.setText("Using GPS Sensors");
+                tv_sensor.setText("GPS Sensors");
             } else {
                 locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-                tv_sensor.setText("Using Towers + WIFI");
+                tv_sensor.setText("Towers + WIFI");
             }
         });
 

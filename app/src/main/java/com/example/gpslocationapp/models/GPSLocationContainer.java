@@ -7,10 +7,10 @@ import java.util.List;
 
 public class GPSLocationContainer {
     private static GPSLocationContainer gpsLocationContainer;
-    private static List<Location> gpsLocation;
+    private static List<Location> gpsLocationList;
 
     public GPSLocationContainer() {
-        gpsLocation = new ArrayList<Location>();
+        gpsLocationList = new ArrayList<>();
     }
 
     public static GPSLocationContainer getInstance() {
@@ -21,29 +21,29 @@ public class GPSLocationContainer {
     }
 
     public synchronized Location getLatestGPSLocation() {
-        if (gpsLocation.size() <= 0) return null;
+        if (gpsLocationList.size() <= 0) return null;
 
-        Location latestGPSLocation = gpsLocation.get(gpsLocation.size() - 1);
+        Location latestGPSLocation = gpsLocationList.get(gpsLocationList.size() - 1);
         return new Location(latestGPSLocation);
     }
 
     public synchronized List<Location> getAllGPSLocations() {
-        if (gpsLocation.size() <= 0) return null;
+        if (gpsLocationList.size() <= 0) return null;
 
         List<Location> gpsLocationCopy = new ArrayList<>();
-        for (Location location : gpsLocation) {
+        for (Location location : gpsLocationList) {
             gpsLocationCopy.add(new Location(location));
         }
         return gpsLocationCopy;
     }
 
-    public synchronized void addGPSLocation(Location lcoation) {
-        if (lcoation == null) throw new NullPointerException();
-        gpsLocation.add(lcoation);
+    public synchronized void addGPSLocation(Location location) {
+        if (location == null) throw new NullPointerException();
+        gpsLocationList.add(location);
     }
 
     public synchronized void reset() {
-        gpsLocation.clear();
+        gpsLocationList.clear();
     }
 
 }

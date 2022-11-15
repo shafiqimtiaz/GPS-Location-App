@@ -2,6 +2,7 @@ package com.example.gpslocationapp.views;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
@@ -22,7 +23,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-    private GPSLocationRequestController gpsLocationRequestController = new GPSLocationRequestController();
+    private GPSLocationRequestController gpsLocationRequestController;
     private List<Location> savedLocations;
 
     @Override
@@ -36,7 +37,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
+
+        gpsLocationRequestController = new GPSLocationRequestController();
+        savedLocations = gpsLocationRequestController.getAllGPSLocations();
+        Log.i("MAP LOC", savedLocations.toString());
     }
 
     /**
@@ -51,19 +57,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        savedLocations = gpsLocationRequestController.getAllGPSLocations();
         LatLng lastLocationPlaced = new LatLng(-34, 151);
 
-//        if (savedLocations != null) {
-        for (Location location : savedLocations) {
-            LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latlng);
-            markerOptions.title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f", location.getLatitude(), location.getLongitude()));
-            mMap.addMarker(markerOptions);
-            lastLocationPlaced = latlng;
+        if (savedLocations != null) {
+            for (Location location : savedLocations) {
+                LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(latlng);
+                markerOptions.title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f", location.getLatitude(), location.getLongitude()));
+                mMap.addMarker(markerOptions);
+                lastLocationPlaced = latlng;
+            }
         }
-//        }
 
 //        MAP ZOOM but since the location updates at fixed interval,its glitchy
 //        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocationPlaced, 12.0f));
