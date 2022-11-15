@@ -86,4 +86,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return false;
         });
     }
+
+    public void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
 }
