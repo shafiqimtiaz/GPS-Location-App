@@ -16,7 +16,7 @@
     <item name="tv_labelupdates" type="id" />
     <item name="sw_locationsupdates" type="id" />
     <item name="tv_updates" type="id" />
-    <item name="tv_lbladdress" type="id" />
+    <item name="tv_labeladdress" type="id" />
     <item name="divider" type="id" />
     <item name="tv_address" type="id" />
     <item name="sw_locationupdates" type="id" />

@@ -1,4 +1,4 @@
-package com.example.gpslocationapp;
+package com.example.gpslocationapp.views;
 
 import android.Manifest;
 import android.content.Intent;
@@ -8,7 +8,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.gpslocationapp.R;
+import com.example.gpslocationapp.models.GPSLocationContainer;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -31,19 +35,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 100;
 
-    TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_sensor, tv_updates, tv_address, tv_wayPointCount;
-    Button btn_newWayPoint, btn_showWayPointList, btn_showMap;
+    TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_sensor, tv_updates, tv_address, tv_locationCount, tv_interval;
     Switch sw_updates, sw_gps;
-    boolean updateOn = false;
+    Button btn_resetCounter, btn_showMap, btn_setInterval;
+    Spinner spinner_interval;
 
     Location currentLocation;
-    List<Location> savedLocations;
-
-    LocationRequest locationRequest = new LocationRequest();
-
-    FusedLocationProviderClient fusedLocationProviderClient;
-
-    LocationCallback locationCallBack;
+    private List<Location> savedLocations;
+    private final GPSLocationContainer gpsLocationContainer = new GPSLocationContainer();
+    private final LocationRequest locationRequest = new LocationRequest();
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationCallback locationCallBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,33 +62,46 @@ public class MainActivity extends AppCompatActivity {
         tv_address = findViewById(R.id.tv_address);
         sw_gps = findViewById(R.id.sw_gps);
         sw_updates = findViewById(R.id.sw_updates);
-        btn_newWayPoint = findViewById(R.id.btn_newWayPoint);
-        btn_showWayPointList = findViewById(R.id.btn_showWayPointList);
-        tv_wayPointCount = findViewById(R.id.tv_wayPointCount);
+        tv_locationCount = findViewById(R.id.tv_locationCount);
         btn_showMap = findViewById(R.id.btn_showMap);
+        btn_resetCounter = findViewById(R.id.btn_resetCounter);
+        tv_interval = findViewById(R.id.tv_interval);
+        btn_setInterval = findViewById(R.id.btn_setInterval);
+        spinner_interval = findViewById(R.id.spinner_interval);
 
         locationRequest.setInterval(1000L * DEFAULT_UPDATE_INTERVAL);
         locationRequest.setFastestInterval(1000L * FAST_UPDATE_INTERVAL);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+//        Generate the drop down list for the spinners.
+//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.requireContext(), R.array.Accuracy, android.R.layout.simple_spinner_item);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+//        spinner_interval.setAdapter(adapter);
+//        btn_setInterval.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String gpsAcc = fileManager.readConfigSettingsCSV(LoginFragment.userId, COLUMN_GPS_ACCURACY, this);
+//                if (!gpsAcc.equals("")) {
+//                    DEFAULT_UPDATE_INTERVAL = Integer.parseInt(gpsAcc);
+//                }
+//            }
+//        });
+
 
         locationCallBack = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 updateUIvalues(locationResult.getLastLocation());
+                Location newLocation = new Location("");
+
+                newLocation.setLatitude(locationResult.getLastLocation().getLatitude());
+                newLocation.setLatitude(locationResult.getLastLocation().getLongitude());
+
+                gpsLocationContainer.addGPSLocation(newLocation);
+                Log.i("SAVED LOCATIONS", gpsLocationContainer.getAllGPSLocations().toString());
             }
         };
-
-        btn_newWayPoint.setOnClickListener(view -> {
-            MyApplication myApplication = (MyApplication) getApplicationContext();
-            savedLocations = myApplication.getMyLocations();
-            savedLocations.add(currentLocation);
-        });
-
-        btn_showWayPointList.setOnClickListener(view -> {
-            Intent i = new Intent(MainActivity.this, ShowSavedLocationsList.class);
-            startActivity(i);
-        });
 
         btn_showMap.setOnClickListener(view -> {
             Intent i = new Intent(MainActivity.this, MapsActivity.class);
@@ -111,6 +126,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btn_resetCounter.setOnClickListener(view -> {
+            gpsLocationContainer.reset();
+            tv_locationCount.setText("0");
+        });
+
         updateGPS();
     }
 
@@ -128,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startLocationUpdates() {
-        tv_updates.setText("Location is being tracked");
+        tv_updates.setText("Not tracking location");
         checkPermission();
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
         updateGPS();
@@ -197,10 +217,10 @@ public class MainActivity extends AppCompatActivity {
             tv_address.setText("Unable to fetch address");
         }
 
-        MyApplication myApplication = (MyApplication) getApplicationContext();
-        savedLocations = myApplication.getMyLocations();
-
-        tv_wayPointCount.setText(Integer.toString(savedLocations.size()));
+        savedLocations = gpsLocationContainer.getAllGPSLocations();
+        if (savedLocations != null) {
+            tv_locationCount.setText(Integer.toString(savedLocations.size()));
+        }
     }
 
     private void checkPermission() {
