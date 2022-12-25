@@ -75,7 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f",
                                 location.getLatitude(), location.getLongitude())));
 
-                polylineOptions.add(latlng).color(Color.RED).width(5).geodesic(true);
+                polylineOptions.add(latlng).color(Color.BLUE).width(5).geodesic(true);
                 lastLocationPlaced = latlng;
             }
         }
