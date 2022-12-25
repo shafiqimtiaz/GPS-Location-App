@@ -1,6 +1,8 @@
 package com.example.gpslocationapp.views;
+//https://www.cs.dartmouth.edu/~campbell/cs65/lecture18/lecture18.html ---> for more help
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -16,6 +18,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
 import java.util.Locale;
@@ -61,19 +64,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         LatLng lastLocationPlaced = new LatLng(-34, 151);
 
+        PolylineOptions polylineOptions = new PolylineOptions();
+
         if (savedLocations != null) {
             for (Location location : savedLocations) {
                 LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
 //                Log.i("LAT_LNG", String.valueOf(latlng));
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latlng);
-                markerOptions.title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f", location.getLatitude(), location.getLongitude()));
-                mMap.addMarker(markerOptions);
+
+                mMap.addMarker((new MarkerOptions()).position(latlng)
+                        .title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f",
+                                location.getLatitude(), location.getLongitude())));
+
+                polylineOptions.add(latlng).color(Color.RED).width(5).geodesic(true);
                 lastLocationPlaced = latlng;
             }
         }
+        mMap.addPolyline(polylineOptions);
 
-//        MAP ZOOM but since the location updates at fixed interval,its glitchy
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocationPlaced, 12.0f));
 
         mMap.setOnMarkerClickListener(marker -> {
