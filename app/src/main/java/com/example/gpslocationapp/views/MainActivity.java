@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         // Array of Months acting as a data pump
-        String[] objects = {"2", "5", "10"};
+        String[] objects = {"2", "5", "10", "20", "40", "60"};
 
         //      Generate the drop down list for the spinners.
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, objects);
