@@ -21,14 +21,14 @@ public class GPSLocationContainer {
     }
 
     public synchronized Location getLatestGPSLocation() {
-        if (gpsLocationList.size() <= 0) return null;
+//        if (gpsLocationList.size() <= 0) return null;
 
         Location latestGPSLocation = gpsLocationList.get(gpsLocationList.size() - 1);
         return new Location(latestGPSLocation);
     }
 
     public synchronized List<Location> getAllGPSLocations() {
-        if (gpsLocationList.size() <= 0) return null;
+//        if (gpsLocationList.size() <= 0) return null;
 
         List<Location> gpsLocationCopy = new ArrayList<>();
         for (Location location : gpsLocationList) {

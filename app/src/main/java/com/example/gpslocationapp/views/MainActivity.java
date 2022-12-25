@@ -8,7 +8,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Parcelable;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -27,23 +29,23 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int DEFAULT_UPDATE_INTERVAL = 10;
+    private static int DEFAULT_UPDATE_INTERVAL = 10;
     private static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 100;
-
+    private final GPSLocationContainer gpsLocationContainer = new GPSLocationContainer();
+    private final LocationRequest locationRequest = new LocationRequest();
     TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_sensor, tv_updates, tv_address, tv_locationCount, tv_interval;
     Switch sw_updates, sw_gps;
     Button btn_resetCounter, btn_showMap, btn_setInterval;
     Spinner spinner_interval;
-
     Location currentLocation;
+    String currentAccuracy = String.valueOf(DEFAULT_UPDATE_INTERVAL);
     private List<Location> savedLocations;
-    private GPSLocationContainer gpsLocationContainer = new GPSLocationContainer();
-    private LocationRequest locationRequest = new LocationRequest();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallBack;
 
@@ -73,19 +75,24 @@ public class MainActivity extends AppCompatActivity {
         locationRequest.setFastestInterval(1000L * FAST_UPDATE_INTERVAL);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-//        Generate the drop down list for the spinners.
-//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.requireContext(), R.array.Accuracy, android.R.layout.simple_spinner_item);
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-//        spinner_interval.setAdapter(adapter);
-//        btn_setInterval.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String gpsAcc = fileManager.readConfigSettingsCSV(LoginFragment.userId, COLUMN_GPS_ACCURACY, this);
-//                if (!gpsAcc.equals("")) {
-//                    DEFAULT_UPDATE_INTERVAL = Integer.parseInt(gpsAcc);
-//                }
-//            }
-//        });
+        // Array of Months acting as a data pump
+        String[] objects = {"2", "5", "10"};
+
+        //      Generate the drop down list for the spinners.
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, objects);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_interval.setAdapter(adapter);
+
+        showGPSAccuracy(spinner_interval, adapter);
+
+        btn_setInterval.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String gpsAcc = spinner_interval.getSelectedItem().toString();
+                DEFAULT_UPDATE_INTERVAL = Integer.parseInt(gpsAcc);
+//                Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
         locationCallBack = new LocationCallback() {
@@ -96,15 +103,18 @@ public class MainActivity extends AppCompatActivity {
                 Location newLocation = new Location("");
 
                 newLocation.setLatitude(locationResult.getLastLocation().getLatitude());
-                newLocation.setLatitude(locationResult.getLastLocation().getLongitude());
+                newLocation.setLongitude(locationResult.getLastLocation().getLongitude());
 
                 gpsLocationContainer.addGPSLocation(newLocation);
-                Log.i("SAVED LOCATIONS", gpsLocationContainer.getAllGPSLocations().toString());
+//                Log.i("SAVED LOCATIONS", gpsLocationContainer.getAllGPSLocations().toString());
             }
         };
 
         btn_showMap.setOnClickListener(view -> {
             Intent i = new Intent(MainActivity.this, MapsActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList("GPS_DATA", (ArrayList<? extends Parcelable>) savedLocations);
+            i.putExtra("GPS_BUNDLE", bundle);
             startActivity(i);
         });
 
@@ -132,6 +142,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         updateGPS();
+    }
+
+    private void displayValue(Spinner spinner, ArrayAdapter<CharSequence> adapter, String value) {
+        int spinnerPosition = adapter.getPosition(value);
+        spinner.setSelection(spinnerPosition);
+    }
+
+    private void showGPSAccuracy(Spinner gpsAccuracyView, ArrayAdapter<CharSequence> adapter) {
+        displayValue(gpsAccuracyView, adapter, currentAccuracy);
     }
 
     private void stopLocationUpdates() {

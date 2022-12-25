@@ -1,8 +1,8 @@
 package com.example.gpslocationapp.views;
 
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.gpslocationapp.R;
 import com.example.gpslocationapp.controllers.GPSLocationRequestController;
 import com.example.gpslocationapp.databinding.ActivityMapsBinding;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -21,9 +22,9 @@ import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private final GPSLocationRequestController gpsLocationRequestController = new GPSLocationRequestController();
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-    private GPSLocationRequestController gpsLocationRequestController;
     private List<Location> savedLocations;
 
     @Override
@@ -40,9 +41,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        gpsLocationRequestController = new GPSLocationRequestController();
-        savedLocations = gpsLocationRequestController.getAllGPSLocations();
-        Log.i("MAP LOC", savedLocations.toString());
+        Intent intent = getIntent();
+        Bundle args = intent.getBundleExtra("GPS_BUNDLE");
+        savedLocations = (List<Location>) args.getSerializable("GPS_DATA");
+//        Log.i("MAP LOC", savedLocations.toString());
     }
 
     /**
@@ -62,6 +64,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (savedLocations != null) {
             for (Location location : savedLocations) {
                 LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+//                Log.i("LAT_LNG", String.valueOf(latlng));
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latlng);
                 markerOptions.title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f", location.getLatitude(), location.getLongitude()));
@@ -71,7 +74,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 //        MAP ZOOM but since the location updates at fixed interval,its glitchy
-//        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocationPlaced, 12.0f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocationPlaced, 12.0f));
 
         mMap.setOnMarkerClickListener(marker -> {
             Integer clicks = (Integer) marker.getTag();
