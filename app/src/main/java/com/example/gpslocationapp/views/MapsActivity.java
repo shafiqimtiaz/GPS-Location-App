@@ -16,6 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -62,26 +63,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng lastLocationPlaced = new LatLng(-34, 151);
 
+        // init start and end location
+        LatLng startLocation, endLocation = new LatLng(-34, 151);
+
+        //init trail polylines
         PolylineOptions polylineOptions = new PolylineOptions();
 
         if (savedLocations != null) {
+
+            //get first savedLocation and
+            startLocation = new LatLng(savedLocations.get(0).getLatitude(), savedLocations.get(0).getLongitude());
+            mMap.addMarker((new MarkerOptions()).position(startLocation)
+                    .title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f",
+                            startLocation.latitude, startLocation.longitude))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
             for (Location location : savedLocations) {
                 LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
 //                Log.i("LAT_LNG", String.valueOf(latlng));
 
-                mMap.addMarker((new MarkerOptions()).position(latlng)
-                        .title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f",
-                                location.getLatitude(), location.getLongitude())));
-
                 polylineOptions.add(latlng).color(Color.BLUE).width(5).geodesic(true);
-                lastLocationPlaced = latlng;
+                endLocation = latlng;
             }
-        }
-        mMap.addPolyline(polylineOptions);
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocationPlaced, 12.0f));
+            // add marker for the last saved location
+            mMap.addMarker((new MarkerOptions()).position(endLocation)
+                    .title(String.format(Locale.CANADA, "Latitude: %.3f Longitude: %.3f",
+                            endLocation.latitude, endLocation.longitude))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        }
+
+        mMap.addPolyline(polylineOptions);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(endLocation, 12.0f));
 
         mMap.setOnMarkerClickListener(marker -> {
             Integer clicks = (Integer) marker.getTag();
