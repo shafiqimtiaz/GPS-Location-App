@@ -34,9 +34,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int DEFAULT_UPDATE_INTERVAL = 10;
     private static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 100;
+    private static int DEFAULT_UPDATE_INTERVAL = 10;
     private final GPSLocationContainer gpsLocationContainer = new GPSLocationContainer();
     private final LocationRequest locationRequest = new LocationRequest();
     TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_sensor, tv_updates, tv_address, tv_locationCount, tv_interval;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String gpsAcc = spinner_interval.getSelectedItem().toString();
                 DEFAULT_UPDATE_INTERVAL = Integer.parseInt(gpsAcc);
-//                Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+                tv_interval.setText(gpsAcc);
             }
         });
 
@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         tv_lat.setText(String.valueOf(location.getLatitude()));
         tv_lon.setText(String.valueOf(location.getLongitude()));
         tv_accuracy.setText(String.valueOf(location.getAccuracy()));
+        tv_interval.setText(String.valueOf(DEFAULT_UPDATE_INTERVAL));
 
         if (location.hasAltitude()) {
             tv_altitude.setText(String.valueOf(location.getAltitude()));
