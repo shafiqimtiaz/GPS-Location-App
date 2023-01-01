@@ -9,7 +9,7 @@ The location periodically updates can be set and reset. The breadcrumbs are show
 - WIP to export the GPS locations for external usage
 
 ![image](https://user-images.githubusercontent.com/57990344/202007134-a8a80959-df26-4c26-a8b5-0016ff6fb4a8.png)
-![Screenshot_20221226-173744](https://user-images.githubusercontent.com/57990344/209767950-d80643be-e4a9-4a46-ae84-5192ea56234a.png)
+![Screenshot_20221226-173744](https://user-images.githubusercontent.com/57990344/210175257-4b6b88b9-4a89-4bb8-a247-352310c3cc01.png)
 
 ## Inspiration
 - https://www.youtube.com/watch?v=_xUcYfbtfsI
